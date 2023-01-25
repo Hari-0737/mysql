@@ -1,0 +1,37 @@
+service mysql start
+
+service apache2 start
+
+a2ensite wordpress
+
+mysql -e "CREATE DATABASE wordpress"
+
+passwd=$MYSQL_PASSWORD
+
+if [ -f /mysqlcred ] && [ -z $passwd ]
+then
+   tail -f /dev/null
+else
+  if [ -z $passwd ]
+    then
+      touch /mysqlcred
+      echo $(openssl rand -base64 10) > mysqlcred
+      b=$(cat /mysqlcred)
+      c=\'$b\'
+      mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY $c "
+      sed -i 's/database_name_here/wordpress/' /var/www/html/wp-config-sample.php
+      sed -i 's/username_here/root/' /var/www/html/wp-config-sample.php
+      sed -i 's/password_here/'$b'/' /var/www/html/wp-config-sample.php
+      sed -i 's/localhost/127.0.0.1/' /var/www/html/wp-config-sample.php
+      cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+   else
+      passwd=\'$MYSQL_PASSWORD\'
+      mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY $passwd"
+      sed -i 's/database_name_here/wordpress/' /var/www/html/wp-config-sample.php
+      sed -i 's/username_here/root/' /var/www/html/wp-config-sample.php
+      sed -i 's/password_here/'$passwd'/' /var/www/html/wp-config-sample.php
+      sed -i 's/localhost/127.0.0.1/' /var/www/html/wp-config-sample.php
+      cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+   fi
+ tail -f /dev/null
+fi
