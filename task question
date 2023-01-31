@@ -1,0 +1,9 @@
+Create a wordpress website with mysql server.
+Conditions:
+- both service should be run in same container
+- do not use any pre-container images and do installations manually
+- start the service as foreground and mysql as background
+- port should be exposed as 8083
+- when login to the container the current directory should be /root
+- both service should not have any manual configuration by gui only through with Shell script.
+- mount the mysql database in the host machine while creating the container.
